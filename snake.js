@@ -3,14 +3,15 @@ const down = "ArrowDown"
 const left = "ArrowLeft"
 const right = "ArrowRight"
 
-var boardWidth = 50
-var boardHeight = 50
+var boardWidth = 30
+var boardHeight = 30
 
-var snake = [[boardWidth, Math.ceil(boardHeight/2)]]
+var snakeStart = [boardWidth, Math.ceil(boardHeight/2)]
+var snake = []
 var apple = []
 var snakeLength = 1
 
-document.onload = drawBoard(); drawApple();
+document.onload = drawBoard();
 
 function drawBoard() {
   var playarea = document.getElementById('playarea')
@@ -29,7 +30,8 @@ function drawBoard() {
       column.appendChild(box)
     }
   }
-  drawSnake(snake)
+  drawSnake(snakeStart)
+  drawApple()
 }
 
 function drawApple() {
@@ -45,13 +47,18 @@ function drawApple() {
   appleBox.classList.add('apple')
 }
 
-function drawSnake(snake) {
+function drawSnake(newCoords) {
+  snake.unshift(newCoords)
   for (let i = 0; i < snake.length; i++) {
-    var x = snake[i][0]
-    var y = snake[i][1]
-    var head = idFromCoords(x,y)
-    var h = document.getElementById(head)
+    var body = idFromCoords(snake[i][0], snake[i][1])
+    var h = document.getElementById(body)
     h.classList.add('snake')
+  }
+  if (snake.length > 1) {
+    var tail = idFromCoords(snake[snake.length - 1][0], snake[snake.length - 1][1])
+    var h = document.getElementById(tail)
+    h.classList.remove('snake')
+    snake.pop()
   }
 }
 
@@ -61,6 +68,7 @@ function idFromCoords(x, y) {
 
 function addToScore() {
   if (String(snake[0]) === String(apple)) {
+    snake.unshift(apple)
     snakeLength += 1
     drawApple()
   }
@@ -71,19 +79,12 @@ document.addEventListener('keydown', function(event) {
   var snake = window.snake;
   const key = event.key;
   if (key === left && snake[0][0] > 1) {
-    snake[0][0] = snake[0][0] - 1
-    drawSnake(snake)
-  }
-  if (key === right && snake[0][0] < boardWidth) {
-    snake[0][0] = snake[0][0] + 1
-    drawSnake(snake)
-  }
-  if (key === up && snake[0][1] > 1) {
-    snake[0][1] = snake[0][1] - 1
-    drawSnake(snake)
-  }
-  if (key === down && snake[0][1] < boardHeight) {
-    snake[0][1] = snake[0][1] + 1
-    drawSnake(snake)
+    drawSnake([snake[0][0] - 1, snake[0][1]])
+  } else if (key === right && snake[0][0] < boardWidth) {
+    drawSnake([snake[0][0] + 1, snake[0][1]])
+  } else if (key === up && snake[0][1] > 1) {
+    drawSnake([snake[0][0], snake[0][1] - 1])
+  } else if (key === down && snake[0][1] < boardHeight) {
+    drawSnake([snake[0][0], snake[0][1] + 1])
   }
 })
