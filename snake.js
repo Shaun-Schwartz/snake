@@ -2,14 +2,14 @@ const up = "ArrowUp"
 const down = "ArrowDown"
 const left = "ArrowLeft"
 const right = "ArrowRight"
-
-var boardWidth = 30
-var boardHeight = 30
-
-var snakeStart = [boardWidth, Math.ceil(boardHeight/2)]
+const boardWidth = 24
+const boardHeight = 24
+const snakeStart = [boardWidth, Math.ceil(boardHeight/2)]
+const intervalID = window.setInterval(move, 250);
 var snake = []
 var apple = []
 var snakeLength = 1
+var direction = "left"
 
 document.onload = drawBoard();
 
@@ -74,17 +74,29 @@ function addToScore() {
   }
 }
 
-document.addEventListener('keydown', function(event) {
+function move() {
   addToScore()
+  if (direction === "left" && snake[0][0] > 1) {
+    drawSnake([snake[0][0] - 1, snake[0][1]])
+  } else if (direction === "right" && snake[0][0] < boardWidth) {
+    drawSnake([snake[0][0] + 1, snake[0][1]])
+  } else if (direction === "up" && snake[0][1] > 1) {
+    drawSnake([snake[0][0], snake[0][1] - 1])
+  } else if (direction === "down" && snake[0][1] < boardHeight) {
+    drawSnake([snake[0][0], snake[0][1] + 1])
+  }
+}
+
+document.addEventListener('keydown', function(event) {
   var snake = window.snake;
   const key = event.key;
-  if (key === left && snake[0][0] > 1) {
-    drawSnake([snake[0][0] - 1, snake[0][1]])
-  } else if (key === right && snake[0][0] < boardWidth) {
-    drawSnake([snake[0][0] + 1, snake[0][1]])
-  } else if (key === up && snake[0][1] > 1) {
-    drawSnake([snake[0][0], snake[0][1] - 1])
-  } else if (key === down && snake[0][1] < boardHeight) {
-    drawSnake([snake[0][0], snake[0][1] + 1])
+  if (key === left && snake[0][0] > 1 && direction !== "right") {
+    direction = "left"
+  } else if (key === right && snake[0][0] < boardWidth && direction !== "left") {
+    direction = "right"
+  } else if (key === up && snake[0][1] > 1 && direction !== "down") {
+    direction = "up"
+  } else if (key === down && snake[0][1] < boardHeight && direction !== "up") {
+    direction = "down"
   }
 })

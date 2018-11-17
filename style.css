@@ -20,8 +20,10 @@
 
 .snake {
   background-color: green;
+  border-radius: 2px;
 }
 
 .apple {
   background-color: red;
+  border-radius: 2px;
 }
