@@ -2,14 +2,18 @@ const up = "ArrowUp"
 const down = "ArrowDown"
 const left = "ArrowLeft"
 const right = "ArrowRight"
-const boardWidth = 24
-const boardHeight = 24
+
+const boardWidth = 16
+const boardHeight = 16
 const snakeStart = [boardWidth, Math.ceil(boardHeight/2)]
-const intervalID = window.setInterval(move, 250);
+
+var moveInterval = window.setInterval(move, 250);
 var snake = []
 var apple = []
 var snakeLength = 1
 var direction = "left"
+var changeDirectionLocked = false
+var gameOver = false
 
 document.onload = drawBoard();
 
@@ -48,11 +52,17 @@ function drawApple() {
 }
 
 function drawSnake(newCoords) {
+  if (gameOver) return
   snake.unshift(newCoords)
   for (let i = 0; i < snake.length; i++) {
-    var body = idFromCoords(snake[i][0], snake[i][1])
-    var h = document.getElementById(body)
-    h.classList.add('snake')
+    try {
+      var body = idFromCoords(snake[i][0], snake[i][1])
+      var h = document.getElementById(body)
+      h.classList.add('snake')
+    }
+    catch(TypeError) {
+      endGame()
+    }
   }
   if (snake.length > 1) {
     var tail = idFromCoords(snake[snake.length - 1][0], snake[snake.length - 1][1])
@@ -74,15 +84,30 @@ function addToScore() {
   }
 }
 
+function endGame() {
+  if (gameOver) return
+  gameOver = true
+  setTimeout( function(){ alert("Game Over") }, 250);
+
+}
+
+function checkIfHeadInBody() {
+  console.log(snake.slice(1,).indexOf(snake[0]))
+  if (snake.slice(1,).indexOf(snake[0]) !== -1) {
+    endGame()
+  }
+}
+
 function move() {
+  checkIfHeadInBody()
   addToScore()
-  if (direction === "left" && snake[0][0] > 1) {
+  if (direction === "left" && snake[0][0] >= 1) {
     drawSnake([snake[0][0] - 1, snake[0][1]])
-  } else if (direction === "right" && snake[0][0] < boardWidth) {
+  } else if (direction === "right" && snake[0][0] <= boardWidth) {
     drawSnake([snake[0][0] + 1, snake[0][1]])
-  } else if (direction === "up" && snake[0][1] > 1) {
+  } else if (direction === "up" && snake[0][1] >= 1) {
     drawSnake([snake[0][0], snake[0][1] - 1])
-  } else if (direction === "down" && snake[0][1] < boardHeight) {
+  } else if (direction === "down" && snake[0][1] <= boardHeight) {
     drawSnake([snake[0][0], snake[0][1] + 1])
   }
 }
@@ -90,13 +115,17 @@ function move() {
 document.addEventListener('keydown', function(event) {
   var snake = window.snake;
   const key = event.key;
-  if (key === left && snake[0][0] > 1 && direction !== "right") {
-    direction = "left"
-  } else if (key === right && snake[0][0] < boardWidth && direction !== "left") {
-    direction = "right"
-  } else if (key === up && snake[0][1] > 1 && direction !== "down") {
-    direction = "up"
-  } else if (key === down && snake[0][1] < boardHeight && direction !== "up") {
-    direction = "down"
+  if (!changeDirectionLocked) {
+    changeDirectionLocked = true
+    if (key === left && direction !== "right") {
+      direction = "left"
+    } else if (key === right && direction !== "left") {
+      direction = "right"
+    } else if (key === up && direction !== "down") {
+      direction = "up"
+    } else if (key === down && direction !== "up") {
+      direction = "down"
+    }
+    setTimeout( function(){ changeDirectionLocked = false; },150);
   }
 })
