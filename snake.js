@@ -18,7 +18,7 @@ var gameOver = false
 document.onload = drawBoard();
 
 function drawBoard() {
-  var playarea = document.getElementById('playarea')
+  const playarea = document.getElementById('playarea')
   playarea.style.width = `${boardWidth * 10}px`
   playarea.style.height = `${boardHeight * 10}px`
   for (let i = 1; i <= boardWidth; i++) {
@@ -27,7 +27,7 @@ function drawBoard() {
     column.setAttribute('class', 'column')
     playarea.appendChild(column)
     for (let j = 1; j <= boardHeight; j++) {
-      var column = document.getElementById(`column ${i}`)
+      column = document.getElementById(`column ${i}`)
       var box = document.createElement('div')
       var boxId = `x${i}-y${j}`
       box.setAttribute('id', boxId)
@@ -39,11 +39,11 @@ function drawBoard() {
 }
 
 function drawApple() {
-  var x = Math.ceil(Math.random() * boardWidth)
-  var y = Math.ceil(Math.random() * boardHeight)
+  const x = Math.ceil(Math.random() * boardWidth)
+  const y = Math.ceil(Math.random() * boardHeight)
   apple = [x, y]
-  var appleId = idFromCoords(x, y)
-  var appleBox = document.getElementById(appleId)
+  const appleId = idFromCoords(x, y)
+  const appleBox = document.getElementById(appleId)
   if (!appleBox.className.split(' ').includes('snake')) {
     appleBox.classList.add('apple')
   } else {
@@ -56,9 +56,9 @@ function drawSnake(newCoords) {
   snake.unshift(newCoords)
   for (let i = 0; i < snake.length; i++) {
     try { // handle hitting border of board & going out of bounds
-      var body = idFromCoords(snake[i][0], snake[i][1])
-      var h = document.getElementById(body)
-      h.classList.add('snake')
+      var snakeBody = idFromCoords(snake[i][0], snake[i][1])
+      var snakeBodyBox = document.getElementById(snakeBody)
+      snakeBodyBox.classList.add('snake')
     }
     catch(TypeError) {
       endGame()
@@ -94,7 +94,7 @@ function endGame() {
 }
 
 function checkIfHeadInBody() {
-  if (snake.slice(1,).indexOf(snake[0]) !== -1) {
+  if (String(snake.slice(1,)).includes(String(snake[0]))) {
     endGame()
   }
 }
