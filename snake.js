@@ -6,16 +6,17 @@ const right = "ArrowRight"
 const boardWidth = 16
 const boardHeight = 16
 const snakeStart = [boardWidth, Math.ceil(boardHeight/2)]
-const moveInterval = window.setInterval(move, 250);
+const moveInterval = window.setInterval(moveAndCheckState, 250);
 
 var snake = []
 var apple = []
-var move = []
-var snakeLength = 1
+var directionChange = []
+var score = 0
 var direction = "left"
+var gameStarted = false
 var gameOver = false
 
-document.onload = drawBoard();
+document.onload = drawBoard(); drawApple();
 
 function drawBoard() {
   const playarea = document.getElementById('playarea')
@@ -34,8 +35,20 @@ function drawBoard() {
       column.appendChild(box)
     }
   }
+}
+
+function start() {
+  if (gameStarted) {
+    location.reload()
+  }
+  gameStarted = true
   drawSnake(snakeStart)
-  drawApple()
+}
+
+function moveAndCheckState() {
+  move();
+  checkIfHeadInBody();
+  addToScore();
 }
 
 function drawApple() {
@@ -70,7 +83,7 @@ function drawSnake(newCoords) {
     previousPostion.classList.remove('snake')
     snake.pop()
   }
-  move.pop()
+  directionChange.pop()
 }
 
 function idFromCoords(x, y) {
@@ -82,26 +95,31 @@ function addToScore() {
     const appleToEat = document.getElementsByClassName('apple')[0]
     appleToEat.classList.remove('apple')
     snake.unshift(apple)
-    snakeLength += 1
+    score += 1
     drawApple()
   }
+  document.getElementById("score").innerText = `Score: ${score}`
 }
 
 function endGame() {
-  if (gameOver) return
+  if (gameOver) return // stops Game Over from being repeatedly alerted
   gameOver = true
   setTimeout( function(){ alert("Game Over") }, 250);
+  setTimeout( function(){ document.getElementById("start-button").innerText = "Clear Board" }, 250);
 }
 
 function checkIfHeadInBody() {
-  if (String(snake.slice(1,)).includes(String(snake[0]))) {
-    endGame()
+  const snakeHead = snake[0];
+  const snakeBody = snake.slice(1,);
+  for (let i = 0; i < snakeBody.length; i++) {
+    if (String(snakeBody[i]) === String(snakeHead)) {
+      endGame()
+    }
   }
 }
 
 function move() {
-  checkIfHeadInBody()
-  addToScore()
+  if (!gameStarted) {return}
   if (direction === "left" && snake[0][0] >= 1) {
     drawSnake([snake[0][0] - 1, snake[0][1]])
   } else if (direction === "right" && snake[0][0] <= boardWidth) {
@@ -114,20 +132,23 @@ function move() {
 }
 
 document.addEventListener('keydown', function(event) {
-  var snake = window.snake;
+  const snake = window.snake;
   const key = event.key;
   if ((key === left && direction !== "right") && move.length === 0) {
     direction = "left"
     // move buffer fixes bug where a quick sequence of direction changes causes strange behaviour
-    move.push(direction)
+    directionChange.push(direction)
   } else if ((key === right && direction !== "left") && move.length === 0) {
     direction = "right"
-    move.push(direction)
+    directionChange.push(direction)
   } else if ((key === up && direction !== "down") && move.length === 0) {
     direction = "up"
-    move.push(direction)
+    directionChange.push(direction)
   } else if ((key === down && direction !== "up") && move.length === 0) {
     direction = "down"
-    move.push(direction)
+    directionChange.push(direction)
   }
 })
+
+document.getElementById("start-button").innerText = "Start"
+document.getElementById("start-button").onclick = function () { start() }
